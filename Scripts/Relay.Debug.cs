@@ -135,17 +135,27 @@ namespace Sigtrap.Relays {
 			if (_listenerData.TryGetValue(observer, out listenersByRelay)){
 				string log = "";
 				int total = 0;
+				int relayIndex = 0;
 				foreach (var a in listenersByRelay){
+					// Log relay type
+					log += string.Format(
+						"  [{0}] {1}\n", 
+						relayIndex.ToString(), 
+						GetTypeName(a.Key.GetType())
+					);
 					foreach (var b in a.Value){
+						// List listeners
 						total += b.Value.copies;
 						log += string.Format(
-							" {1} {2}({3}) ({0} copies) \n   AddListener traces: (including for listeners which have since been removed!)\n{4}",
+							"    {1} {2}({3}) ({0} copies) \n     AddListener traces: (including for listeners which have since been removed!)\n{4}",
 							b.Value.copies.ToString(), b.Key.ReturnType.Name,
-							b.Key.Name, GetMethodArgs(b.Key), b.Value.GetStackTrace("     ")
+							b.Key.Name, GetMethodArgs(b.Key), b.Value.GetStackTrace("      ")
 						);
 					}
+					++relayIndex;
 				}
 				if (total == 0) return null;
+				// Add header
 				log = total.ToString()+" current relay listeners for "+observer.ToString()+":\n"+log;
 				return log;
 			}
@@ -183,12 +193,26 @@ namespace Sigtrap.Relays {
 			var ps = m.GetParameters();
 			string pss = "";
 			for (int i=0; i<ps.Length; ++i){
-				pss += ps[i].ParameterType.Name;
+				pss += GetTypeName(ps[i].ParameterType);
 				if (i != ps.Length-1){
 					pss += ", ";
 				}
 			}
 			return pss;
+		}
+		static string GetTypeName(Type t){
+			if (!t.IsGenericType) return t.Name;
+
+			var args = t.GetGenericArguments();
+			string result = t.Name.Substring(0, t.Name.LastIndexOf("`")) + "<";
+			for (int i=0; i<args.Length; ++i){
+				result += GetTypeName(args[i]);
+				if (i != (args.Length-1)){
+					result += ", ";
+				}
+			}
+			result += ">";
+			return result;
 		}
 	}
 }
