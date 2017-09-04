@@ -7,7 +7,7 @@ C# `event` multicasting is a nice language-level feature, but in Unity's version
   * `AddOnce()` automatically removes a listener after dispatch
   * Guard against duplicate listeners for safety, or disable checking for increased performance
   * `Contains()` tells you whether a delegate is already subscribed
-  * Debug mode helps diagnose dangling references - a common cause of GC issues in event-driven architectures
+  * Debug mode helps diagnose ["dangling" or "lapsed" listeners](https://en.wikipedia.org/wiki/Lapsed_listener_problem) - a common cause of GC issues in event-driven architectures
 * Minimal allocation using arrays of delegates
   * C# `event` re-allocates the _entire multicast object_ each time `+=` or `-=` called
   * Relay uses a dynamic array of singlecast delegates
