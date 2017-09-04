@@ -36,7 +36,7 @@
 using System;
 
 namespace Sigtrap.Relays {
-	public abstract partial class RelayBase<TDelegate> where TDelegate:class {
+	public abstract class RelayBase<TDelegate> where TDelegate:class {
 		public uint listenerCount {get {return _count;}}
 		public uint oneTimeListenersCount {get {return _onceCount;}}
 
@@ -49,6 +49,22 @@ namespace Sigtrap.Relays {
 		protected uint _onceCap = 0;
 
 		protected static IndexOutOfRangeException _eIOOR = new IndexOutOfRangeException("Fewer listeners than expected. See guidelines in Relay.cs on using RemoveListener and RemoveAll within Relay listeners.");
+
+		#if SIGTRAP_RELAY_DBG
+		/// <summary>
+		/// If true, 
+		/// </summary>
+		public static bool recordDebugData {
+			get {return _RelayDebugger.recordDebugData;}
+			set {_RelayDebugger.recordDebugData = value;}
+		}
+		public static string LogRelays(){
+			return _RelayDebugger.LogRelays();
+		}
+		public static string LogRelays(object observer){
+			return _RelayDebugger.LogRelays(observer);
+		}
+		#endif
 
 		#region API
 		/// <summary>
@@ -73,7 +89,7 @@ namespace Sigtrap.Relays {
 			_listeners[_count] = listener;
 			++_count;
 			#if SIGTRAP_RELAY_DBG
-			DebugAddListener(listener);
+			_RelayDebugger.DebugAddListener(this, listener);
 			#endif
 		}
 		/// <summary>
@@ -110,7 +126,7 @@ namespace Sigtrap.Relays {
 				}
 			}
 			#if SIGTRAP_RELAY_DBG
-			if (result) DebugRemListener(listener);
+			if (result) _RelayDebugger.DebugRemListener(this, listener);
 			#endif
 			return result;
 		}
@@ -123,7 +139,7 @@ namespace Sigtrap.Relays {
 			if (removePersistentListeners) {
 				#if SIGTRAP_RELAY_DBG
 				for (int i=0; i<_listeners.Length; ++i){
-					DebugRemListener(_listeners[i]);
+					_RelayDebugger.DebugRemListener(this, _listeners[i]);
 				}
 				#endif
 				Array.Clear(_listeners, 0, (int)_cap);

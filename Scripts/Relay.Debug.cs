@@ -21,15 +21,7 @@ using System.Reflection;
 using System.Diagnostics;
 
 namespace Sigtrap.Relays {
-	#if UNITY_EDITOR
-	public static class RelayEditor {
-		[UnityEditor.MenuItem("Relay/Log Listeners")]
-		public static void ListRelays(){
-			UnityEngine.Debug.Log(Relay.ListRelays());
-		}
-	}
-	#endif
-	public abstract partial class RelayBase<TDelegate> where TDelegate:class {
+	public static class _RelayDebugger {
 		class ListenerData {
 			public object owner { get; private set; }
 			public object relay { get; private set; }
@@ -100,11 +92,7 @@ namespace Sigtrap.Relays {
 			}
 		}
 
-		/// <summary>
-		/// If true, 
-		/// </summary>
 		public static bool recordDebugData = true;
-
 		static Dictionary<
 			object, 				// Owner of listener (delegate target)
 			Dictionary<
@@ -116,14 +104,21 @@ namespace Sigtrap.Relays {
 			>
 		> _listenerData = new Dictionary<object, Dictionary<object, Dictionary<MethodInfo,ListenerData>>>();
 
+		#if UNITY_EDITOR	
+		[UnityEditor.MenuItem("Relay/Log Listeners")]
+		public static void LogRelaysEditor(){
+			UnityEngine.Debug.Log(LogRelays());
+		}
+		#endif
+
 		/// <summary>
 		/// Output a log of all existing Relays and their listeners.
 		/// </summary>
 		/// <returns>The listeners.</returns>
-		public static string ListRelays(){
+		public static string LogRelays(){
 			string log = "";
 			foreach (var ld in _listenerData){
-				string s = ListRelays(ld.Key);
+				string s = LogRelays(ld.Key);
 				if (!string.IsNullOrEmpty(s)) {
 					log += s;
 				}
@@ -135,7 +130,7 @@ namespace Sigtrap.Relays {
 		/// </summary>
 		/// <returns>The listeners.</returns>
 		/// <param name="observer">Owner of listeners.</param>
-		public static string ListRelays(object observer){
+		public static string LogRelays(object observer){
 			Dictionary<object, Dictionary<MethodInfo, ListenerData>> listenersByRelay = null;
 			if (_listenerData.TryGetValue(observer, out listenersByRelay)){
 				string log = "";
@@ -144,7 +139,7 @@ namespace Sigtrap.Relays {
 					foreach (var b in a.Value){
 						total += b.Value.copies;
 						log += string.Format(
-							" ({0}) {1} {2}({3})\n   AddListener traces: (including for listeners which have since been removed!)\n{4}",
+							" {1} {2}({3}) ({0} copies) \n   AddListener traces: (including for listeners which have since been removed!)\n{4}",
 							b.Value.copies.ToString(), b.Key.ReturnType.Name,
 							b.Key.Name, GetMethodArgs(b.Key), b.Value.GetStackTrace("     ")
 						);
@@ -157,16 +152,16 @@ namespace Sigtrap.Relays {
 			return null;
 		}
 
-		protected void DebugAddListener(TDelegate d){
+		public static void DebugAddListener(object relay, object dlgt){
 			if (recordDebugData) {
-				DebugGetListenerData(d as Delegate).Push(new StackTrace(true).GetFrames());
+				DebugGetListenerData(relay, dlgt as Delegate).Push(new StackTrace(true).GetFrames());
 			}
 		}
-		protected void DebugRemListener(TDelegate d){
-			DebugGetListenerData(d as Delegate).Pop();
+		public static void DebugRemListener(object relay, object dlgt){
+			DebugGetListenerData(relay, dlgt as Delegate).Pop();
 		}
 
-		ListenerData DebugGetListenerData(Delegate d){
+		static ListenerData DebugGetListenerData(object relay, Delegate d){
 			ListenerData result = null;
 			Dictionary<object, Dictionary<MethodInfo, ListenerData>> byRelay = null;
 			if (!_listenerData.TryGetValue(d.Target, out byRelay)){
@@ -174,12 +169,12 @@ namespace Sigtrap.Relays {
 				_listenerData.Add(d.Target, byRelay);
 			}
 			Dictionary<MethodInfo, ListenerData> byMethod = null;
-			if (!byRelay.TryGetValue(this, out byMethod)){
+			if (!byRelay.TryGetValue(relay, out byMethod)){
 				byMethod = new Dictionary<MethodInfo, ListenerData>();
-				byRelay.Add(this, byMethod);
+				byRelay.Add(relay, byMethod);
 			}
 			if (!byMethod.TryGetValue(d.Method, out result)){
-				result = new ListenerData(d.Target, this, d.Method);
+				result = new ListenerData(d.Target, relay, d.Method);
 				byMethod.Add(d.Method, result);
 			}
 			return result;
