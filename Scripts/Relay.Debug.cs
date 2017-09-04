@@ -92,6 +92,8 @@ namespace Sigtrap.Relays {
 			}
 		}
 
+		static string _anonymousDummyObject = "anonymous methods";
+
 		public static bool recordDebugData = true;
 		static Dictionary<
 			object, 				// Owner of listener (delegate target)
@@ -174,9 +176,13 @@ namespace Sigtrap.Relays {
 		static ListenerData DebugGetListenerData(object relay, Delegate d){
 			ListenerData result = null;
 			Dictionary<object, Dictionary<MethodInfo, ListenerData>> byRelay = null;
-			if (!_listenerData.TryGetValue(d.Target, out byRelay)){
+			object target = d.Target;
+			if (target == null){
+				target = _anonymousDummyObject;
+			}
+			if (!_listenerData.TryGetValue(target, out byRelay)){
 				byRelay = new Dictionary<object, Dictionary<MethodInfo, ListenerData>>();
-				_listenerData.Add(d.Target, byRelay);
+				_listenerData.Add(target, byRelay);
 			}
 			Dictionary<MethodInfo, ListenerData> byMethod = null;
 			if (!byRelay.TryGetValue(relay, out byMethod)){
