@@ -34,11 +34,14 @@
  */
 
 using System;
+using Sigtrap.Relays.Link;
 
 namespace Sigtrap.Relays {
-	public abstract class RelayBase<TDelegate> where TDelegate:class {
+	public abstract class RelayBase<TDelegate> : IRelayLinkBase<TDelegate> where TDelegate:class {
 		public uint listenerCount {get {return _count;}}
 		public uint oneTimeListenersCount {get {return _onceCount;}}
+
+		protected bool _hasLink = false;
 
 		protected TDelegate[] _listeners = new TDelegate[1];
 		protected uint _count = 0;
@@ -184,7 +187,18 @@ namespace Sigtrap.Relays {
 	}
 
 	#region Implementations
-	public class Relay : RelayBase<Action> {
+	public class Relay : RelayBase<Action>, IRelayLink {
+		private IRelayLink _link = null;
+		public IRelayLink link {
+			get {
+				if (!_hasLink){
+					_link = RelayLink.CreateInstance(this);
+					_hasLink = true;
+				}
+				return _link;
+			}
+		}
+
 		public void Dispatch(){
 			// Persistent listeners
 			// Reversal allows self-removal during dispatch (doesn't skip next listener)
@@ -206,7 +220,18 @@ namespace Sigtrap.Relays {
 			}
 		}
 	}
-	public class Relay<T> : RelayBase<Action<T>> {
+	public class Relay<T> : RelayBase<Action<T>>, IRelayLink<T> {
+		private IRelayLink<T> _link = null;
+		public IRelayLink<T> link {
+			get {
+				if (!_hasLink){
+					_link = RelayLink<T>.CreateInstance(this);
+					_hasLink = true;
+				}
+				return _link;
+			}
+		}
+
 		public void Dispatch(T t){
 			for (uint i=_count; i>0; --i){
 				if (i>_count) throw _eIOOR;
@@ -224,7 +249,18 @@ namespace Sigtrap.Relays {
 			}
 		}
 	}
-	public class Relay<T,U> : RelayBase<Action<T,U>> {
+	public class Relay<T,U> : RelayBase<Action<T,U>>, IRelayLink<T, U> {
+		private IRelayLink<T, U> _link = null;
+		public IRelayLink<T, U> link {
+			get {
+				if (!_hasLink){
+					_link = RelayLink<T, U>.CreateInstance(this);
+					_hasLink = true;
+				}
+				return _link;
+			}
+		}
+		
 		public void Dispatch(T t, U u){
 			for (uint i=_count; i>0; --i){
 				if (i>_count) throw _eIOOR;
@@ -242,7 +278,18 @@ namespace Sigtrap.Relays {
 			}
 		}
 	}
-	public class Relay<T,U,V> : RelayBase<Action<T,U,V>> {
+	public class Relay<T,U,V> : RelayBase<Action<T,U,V>>, IRelayLink<T, U, V> {
+		private IRelayLink<T, U, V> _link = null;
+		public IRelayLink<T, U, V> link {
+			get {
+				if (!_hasLink){
+					_link = RelayLink<T, U, V>.CreateInstance(this);
+					_hasLink = true;
+				}
+				return _link;
+			}
+		}
+
 		public void Dispatch(T t, U u, V v){
 			for (uint i=_count; i>0; --i){
 				if (i>_count) throw _eIOOR;
@@ -260,7 +307,18 @@ namespace Sigtrap.Relays {
 			}
 		}
 	}
-	public class Relay<T,U,V,W> : RelayBase<Action<T,U,V,W>> {
+	public class Relay<T,U,V,W> : RelayBase<Action<T,U,V,W>>, IRelayLink<T, U, V, W> {
+		private IRelayLink<T, U, V, W> _link = null;
+		public IRelayLink<T, U, V, W> link {
+			get {
+				if (!_hasLink){
+					_link = RelayLink<T, U, V, W>.CreateInstance(this);
+					_hasLink = true;
+				}
+				return _link;
+			}
+		}
+
 		public void Dispatch(T t, U u, V v, W w){
 			for (uint i=_count; i>0; --i){
 				if (i>_count) throw _eIOOR;
