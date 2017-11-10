@@ -128,7 +128,7 @@ namespace Sigtrap.Relays {
 			return log;
 		}
 		/// <summary>
-		/// Output a log of all Relays the specified object has subscribed to.
+		/// Output a log of any and all Relays specified object is currently subscribed to.
 		/// </summary>
 		/// <returns>The listeners.</returns>
 		/// <param name="observer">Owner of listeners.</param>

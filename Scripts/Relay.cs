@@ -38,7 +38,14 @@ using Sigtrap.Relays.Link;
 
 namespace Sigtrap.Relays {
 	public abstract class RelayBase<TDelegate> : IRelayLinkBase<TDelegate> where TDelegate:class {
+		/// <summary>
+		/// How many listeners does this intance currently have?
+		/// </summary>
 		public uint listenerCount {get {return _count;}}
+		/// <summary>
+		/// How many one-time listeners does this intance currently have?
+		/// After dispatch, all current one-time listeners are automatically removed.
+		/// </summary>
 		public uint oneTimeListenersCount {get {return _onceCount;}}
 
 		protected bool _hasLink = false;
@@ -55,15 +62,25 @@ namespace Sigtrap.Relays {
 
 		#if SIGTRAP_RELAY_DBG
 		/// <summary>
-		/// If true, 
+		/// If true, RelayDebugger will automatically record all listener addition and removal on all Relays.
+		/// This allows a dump of all Relay data to aid diagnosis of lapsed listeners etc.
 		/// </summary>
 		public static bool recordDebugData {
 			get {return _RelayDebugger.recordDebugData;}
 			set {_RelayDebugger.recordDebugData = value;}
 		}
+		/// <summary>
+		/// Output a log of all existing Relays and their listeners.
+		/// </summary>
+		/// <returns>The listeners.</returns>
 		public static string LogRelays(){
 			return _RelayDebugger.LogRelays();
 		}
+		/// <summary>
+		/// Output a log of any and all Relays specified object is currently subscribed to.
+		/// </summary>
+		/// <returns>The listeners.</returns>
+		/// <param name="observer">Owner of listeners.</param>
 		public static string LogRelays(object observer){
 			return _RelayDebugger.LogRelays(observer);
 		}
@@ -189,6 +206,10 @@ namespace Sigtrap.Relays {
 	#region Implementations
 	public class Relay : RelayBase<Action>, IRelayLink {
 		private IRelayLink _link = null;
+		/// <summary>
+		/// Get an IRelayLink object that wraps this Relay without allowing Dispatch.
+		/// Provides a safe interface for classes outside the Relay's "owner".
+		/// </summary>
 		public IRelayLink link {
 			get {
 				if (!_hasLink){
@@ -222,6 +243,10 @@ namespace Sigtrap.Relays {
 	}
 	public class Relay<T> : RelayBase<Action<T>>, IRelayLink<T> {
 		private IRelayLink<T> _link = null;
+		/// <summary>
+		/// Get an IRelayLink object that wraps this Relay without allowing Dispatch.
+		/// Provides a safe interface for classes outside the Relay's "owner".
+		/// </summary>
 		public IRelayLink<T> link {
 			get {
 				if (!_hasLink){
@@ -251,6 +276,10 @@ namespace Sigtrap.Relays {
 	}
 	public class Relay<T,U> : RelayBase<Action<T,U>>, IRelayLink<T, U> {
 		private IRelayLink<T, U> _link = null;
+		/// <summary>
+		/// Get an IRelayLink object that wraps this Relay without allowing Dispatch.
+		/// Provides a safe interface for classes outside the Relay's "owner".
+		/// </summary>
 		public IRelayLink<T, U> link {
 			get {
 				if (!_hasLink){
@@ -280,6 +309,10 @@ namespace Sigtrap.Relays {
 	}
 	public class Relay<T,U,V> : RelayBase<Action<T,U,V>>, IRelayLink<T, U, V> {
 		private IRelayLink<T, U, V> _link = null;
+		/// <summary>
+		/// Get an IRelayLink object that wraps this Relay without allowing Dispatch.
+		/// Provides a safe interface for classes outside the Relay's "owner".
+		/// </summary>
 		public IRelayLink<T, U, V> link {
 			get {
 				if (!_hasLink){
@@ -309,6 +342,10 @@ namespace Sigtrap.Relays {
 	}
 	public class Relay<T,U,V,W> : RelayBase<Action<T,U,V,W>>, IRelayLink<T, U, V, W> {
 		private IRelayLink<T, U, V, W> _link = null;
+		/// <summary>
+		/// Get an IRelayLink object that wraps this Relay without allowing Dispatch.
+		/// Provides a safe interface for classes outside the Relay's "owner".
+		/// </summary>
 		public IRelayLink<T, U, V, W> link {
 			get {
 				if (!_hasLink){
