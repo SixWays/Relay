@@ -18,6 +18,8 @@ C# `event` multicasting is a nice language-level feature, but in Unity's version
 * Battle-tested
   * Heavily used in core code of our game [Sublevel Zero](http://www.sublevelzerogame.com) on PC, VR, PS4 and Xbox One
 
+[Read the wiki](https://github.com/SixWays/Relay/wiki) for detailed instructions.
+  
 Relay is inspired by the Signals implementation in [StrangeIoC](https://github.com/strangeioc/strangeioc) (but drastically improves performance and allocation).
 
 ## Performance (Tested in Unity 5.6)
