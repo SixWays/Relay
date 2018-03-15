@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
-using Sigtrap.Relays.Link;
 
 namespace Sigtrap.Relays.Tests {
 	public class RelayTests {

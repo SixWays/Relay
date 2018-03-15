@@ -1,8 +1,8 @@
 ﻿using System;
 using Sigtrap.Relays;
 
-namespace Sigtrap.Relays.Link {
-	#region Interfaces
+#region Interfaces
+namespace Sigtrap.Relays {
 	public interface IRelayLinkBase<TDelegate> where TDelegate:class {
 		/// <summary>
 		/// How many listeners does this intance currently have?
@@ -52,10 +52,12 @@ namespace Sigtrap.Relays.Link {
 	public interface IRelayLink<T> : IRelayLinkBase<System.Action<T>> {}
 	public interface IRelayLink<T, U> : IRelayLinkBase<System.Action<T, U>> {}
 	public interface IRelayLink<T, U, V> : IRelayLinkBase<System.Action<T, U, V>> {}
-	public interface IRelayLink<T, U, V, W> : IRelayLinkBase<System.Action<T, U, V, W>> {}
-	#endregion
+	public interface IRelayLink<T, U, V, W> : IRelayLinkBase<System.Action<T, U, V, W>> {}	
+}
+#endregion
 
-	#region Classes
+#region Implementation
+namespace Sigtrap.Relays.Link {
 	public abstract class RelayLinkBase<TDelegate> : IRelayLinkBase<TDelegate> where TDelegate:class {
 		protected RelayBase<TDelegate> _relay;
 
@@ -142,5 +144,5 @@ namespace Sigtrap.Relays.Link {
 			return result;
 		}
 	}
-	#endregion
 }
+#endregion
