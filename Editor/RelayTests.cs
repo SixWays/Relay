@@ -587,6 +587,94 @@ namespace Sigtrap.Relays.Tests {
 			Assert.That(calls == 2);
 		}
 		#endregion
+
+		#region RelayBinding
+		[Test]
+		[TestCase(0)]
+		[TestCase(1)]
+		[TestCase(2)]
+		[TestCase(3)]
+		[TestCase(4)]
+		public void TestBindListener(int args){
+			var r = CreateRelay(args);
+			BindListener1(r, args, false);
+			AssertListeners(r, args, 1, 0);
+			Dispatch(r, args);
+			Assert.That(calls == 1);
+		}
+		[Test]
+		[TestCase(0)]
+		[TestCase(1)]
+		[TestCase(2)]
+		[TestCase(3)]
+		[TestCase(4)]
+		public void TestBindingToggle(int args){
+			var r = CreateRelay(args);
+			object b = BindListener1(r, args, false);
+
+			// Disable binding, check no listeners on relay
+			EnableBinding(b, args, false);
+			AssertListeners(r, args, 0, 0);
+			Dispatch(r, args);
+			Assert.That(calls == 0);
+
+			// Re-enable binding, check one listener on relay
+			EnableBinding(b, args, true);
+			AssertListeners(r, args, 1, 0);
+			Dispatch(r, args);
+			Assert.That(calls == 1);
+		}
+		[Test]
+		[TestCase(0)]
+		[TestCase(1)]
+		[TestCase(2)]
+		[TestCase(3)]
+		[TestCase(4)]
+		public void TestBindingAddDup(int args){
+			var r = CreateRelay(args);
+			// Add L1 manually
+			AddListener1(r, args);
+			// Attempt to bind L1 - should fail since not allowing dups
+			object b = BindListener1(r, args, false);
+
+			// Verify no binding was created/returned
+			Assert.That(b == null);
+			// Verify one listener and dispatch calls one listener
+			AssertListeners(r, args, 1, 0);
+			Dispatch(r, args);
+			Assert.That(calls == 1);
+		}
+		[Test]
+		[TestCase(0)]
+		[TestCase(1)]
+		[TestCase(2)]
+		[TestCase(3)]
+		[TestCase(4)]
+		public void TestBindingToggleDup(int args){
+			var r = CreateRelay(args);
+			object b = BindListener1(r, args, false);
+
+			// Turn off bound listener
+			EnableBinding(b, args, false);
+			// Add the same listener manually
+			AddListener1(r, args, false);
+			// Check there's only one listener
+			AssertListeners(r, args, 1, 0);
+
+			// Attempt to re-enable bound listener
+			EnableBinding(b, args, true);
+			// Verify it wasn't successful since no dups allowed
+			AssertListeners(r, args, 1, 0);
+
+			// Allow duplicates on the binding and re-enable
+			EnableDuplicateBinding(b, args, true);
+			EnableBinding(b, args, true);
+			// Verify listener present twice and dispatch calls listener twice
+			AssertListeners(r, args, 2, 0);
+			Dispatch(r, args);
+			Assert.That(calls == 2);
+		}
+		#endregion
 		#endregion
 
 		#region Helpers
@@ -679,6 +767,59 @@ namespace Sigtrap.Relays.Tests {
 					break;
 				case 4:
 					(r as Relay<int, float, bool, uint>).AddListener(DummyDelegate2,allowDups);
+					break;
+			}
+		}
+		object BindListener1(object r, int args, bool allowDups=false){
+			switch (args){
+				case 0:
+					return (r as Relay).BindListener(DummyDelegate1,allowDups);
+				case 1:
+					return (r as Relay<int>).BindListener(DummyDelegate1,allowDups);
+				case 2:
+					return (r as Relay<int, float>).BindListener(DummyDelegate1,allowDups);
+				case 3:
+					return (r as Relay<int, float, bool>).BindListener(DummyDelegate1,allowDups);
+				case 4:
+					return (r as Relay<int, float, bool, uint>).BindListener(DummyDelegate1,allowDups);
+			}
+			return null;
+		}
+		void EnableBinding(object b, int args, bool enable){
+			switch (args){
+				case 0:
+					(b as IRelayBinding<System.Action>).Enable(enable);
+					break;
+				case 1:
+					(b as IRelayBinding<System.Action<int>>).Enable(enable);
+					break;
+				case 2:
+					(b as IRelayBinding<System.Action<int,float>>).Enable(enable);
+					break;
+				case 3:
+					(b as IRelayBinding<System.Action<int,float,bool>>).Enable(enable);
+					break;
+				case 4:
+					(b as IRelayBinding<System.Action<int,float,bool,uint>>).Enable(enable);
+					break;
+			}
+		}
+		void EnableDuplicateBinding(object b, int args, bool allowDups){
+			switch (args){
+				case 0:
+					(b as IRelayBinding<System.Action>).allowDuplicates = allowDups;
+					break;
+				case 1:
+					(b as IRelayBinding<System.Action<int>>).allowDuplicates = allowDups;
+					break;
+				case 2:
+					(b as IRelayBinding<System.Action<int,float>>).allowDuplicates = allowDups;
+					break;
+				case 3:
+					(b as IRelayBinding<System.Action<int,float,bool>>).allowDuplicates = allowDups;
+					break;
+				case 4:
+					(b as IRelayBinding<System.Action<int,float,bool,uint>>).allowDuplicates = allowDups;
 					break;
 			}
 		}
