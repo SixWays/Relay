@@ -125,7 +125,7 @@ namespace Sigtrap.Relays {
 		/// <param name="allowDuplicates">If <c>false</c>, checks whether persistent listener is already present.</param>
 		public IRelayBinding<TDelegate> BindListener(TDelegate listener, bool allowDuplicates=false){
 			if (AddListener(listener, allowDuplicates)){
-				return RelayBinding<TDelegate>.CreateInstance(this, listener, allowDuplicates);
+				return new RelayBinding<TDelegate>(this, listener, allowDuplicates);
 			}
 			return null;
 		}
@@ -233,7 +233,7 @@ namespace Sigtrap.Relays {
 		public IRelayLink link {
 			get {
 				if (!_hasLink){
-					_link = RelayLink.CreateInstance(this);
+					_link = new RelayLink(this);
 					_hasLink = true;
 				}
 				return _link;
@@ -270,7 +270,7 @@ namespace Sigtrap.Relays {
 		public IRelayLink<T> link {
 			get {
 				if (!_hasLink){
-					_link = RelayLink<T>.CreateInstance(this);
+					_link = new RelayLink<T>(this);
 					_hasLink = true;
 				}
 				return _link;
@@ -303,7 +303,7 @@ namespace Sigtrap.Relays {
 		public IRelayLink<T, U> link {
 			get {
 				if (!_hasLink){
-					_link = RelayLink<T, U>.CreateInstance(this);
+					_link = new RelayLink<T, U>(this);
 					_hasLink = true;
 				}
 				return _link;
@@ -336,7 +336,7 @@ namespace Sigtrap.Relays {
 		public IRelayLink<T, U, V> link {
 			get {
 				if (!_hasLink){
-					_link = RelayLink<T, U, V>.CreateInstance(this);
+					_link = new RelayLink<T, U, V>(this);
 					_hasLink = true;
 				}
 				return _link;
@@ -369,7 +369,7 @@ namespace Sigtrap.Relays {
 		public IRelayLink<T, U, V, W> link {
 			get {
 				if (!_hasLink){
-					_link = RelayLink<T, U, V, W>.CreateInstance(this);
+					_link = new RelayLink<T, U, V, W>(this);
 					_hasLink = true;
 				}
 				return _link;

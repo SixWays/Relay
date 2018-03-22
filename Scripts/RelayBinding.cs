@@ -34,17 +34,19 @@ namespace Sigtrap.Relays {
 #region Implementation
 namespace Sigtrap.Relays.Binding {
 	public class RelayBinding<TDelegate> : IRelayBinding<TDelegate> where TDelegate:class {
-		public static RelayBinding<TDelegate> CreateInstance(IRelayLinkBase<TDelegate> relay, TDelegate listener, bool allowDuplicates){
-			RelayBinding<TDelegate> result = new RelayBinding<TDelegate>();
-			result._relay = relay;
-			result._listener = listener;
-			result.allowDuplicates = allowDuplicates;
-			return result;
-		}
-
 		protected IRelayLinkBase<TDelegate> _relay {get; private set;}
 		protected TDelegate _listener {get;	private set;}
 
+		#region Constructors
+		private RelayBinding(){}	// Private empty constructor to force use of params
+		public RelayBinding(IRelayLinkBase<TDelegate> relay, TDelegate listener, bool allowDuplicates) : this(){
+			_relay = relay;
+			_listener = listener;
+			this.allowDuplicates = allowDuplicates;
+		}
+		#endregion
+
+		#region IRelayBinding implementation
 		/// <summary>
 		/// Is the listener currently subscribed to the Relay?
 		/// </summary>
@@ -60,7 +62,7 @@ namespace Sigtrap.Relays.Binding {
 		/// <summary>
 		/// How many persistent listeners does the bound Relay currently have?
 		/// </summary>
-		public uint listenerCount {get {return _relay.listenerCount;}}
+		public uint listenerCount {get {return _relay.listenerCount;}}		
 
 		/// <summary>
 		/// Enable or disable the listener on the bound Relay.
@@ -84,6 +86,7 @@ namespace Sigtrap.Relays.Binding {
 			}
 			return false;
 		}
+		#endregion
 	}
 }
 #endregion

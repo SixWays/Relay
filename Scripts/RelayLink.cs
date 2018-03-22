@@ -71,6 +71,13 @@ namespace Sigtrap.Relays.Link {
 	public abstract class RelayLinkBase<TDelegate> : IRelayLinkBase<TDelegate> where TDelegate:class {
 		protected RelayBase<TDelegate> _relay;
 
+		#region Constructors
+		private RelayLinkBase(){}	// Private empty constructor to force use of params
+		public RelayLinkBase(RelayBase<TDelegate> relay){
+			_relay = relay;
+		}
+		#endregion
+
 		#region IRelayLinkBase implementation
 		public uint listenerCount {get {return _relay.listenerCount;}}
 		public uint oneTimeListenersCount {get {return _relay.oneTimeListenersCount;}}
@@ -124,39 +131,19 @@ namespace Sigtrap.Relays.Link {
 	}
 
 	public class RelayLink : RelayLinkBase<Action>, IRelayLink {
-		public static RelayLink CreateInstance(Relay relay){
-			var result = new RelayLink();
-			result._relay = relay;
-			return result;
-		}
+		public RelayLink(RelayBase<Action> relay) : base(relay){}
 	}
 	public class RelayLink<T> : RelayLinkBase<Action<T>>, IRelayLink<T> {
-		public static RelayLink<T> CreateInstance(Relay<T> relay){
-			var result = new RelayLink<T>();
-			result._relay = relay;
-			return result;
-		}
+		public RelayLink(RelayBase<Action<T>> relay) : base(relay){}
 	}
 	public class RelayLink<T, U> : RelayLinkBase<Action<T, U>>, IRelayLink<T, U> {
-		public static RelayLink<T, U> CreateInstance(Relay<T, U> relay){
-			var result = new RelayLink<T, U>();
-			result._relay = relay;
-			return result;
-		}
+		public RelayLink(RelayBase<Action<T,U>> relay) : base(relay){}
 	}
 	public class RelayLink<T, U, V> : RelayLinkBase<Action<T, U, V>>, IRelayLink<T, U, V> {
-		public static RelayLink<T, U, V> CreateInstance(Relay<T, U, V> relay){
-			var result = new RelayLink<T, U, V>();
-			result._relay = relay;
-			return result;
-		}
+		public RelayLink(RelayBase<Action<T,U,V>> relay) : base(relay){}
 	}
 	public class RelayLink<T, U, V, W> : RelayLinkBase<Action<T, U, V, W>>, IRelayLink<T, U, V, W> {
-		public static RelayLink<T, U, V, W> CreateInstance(Relay<T, U, V, W> relay){
-			var result = new RelayLink<T, U, V, W>();
-			result._relay = relay;
-			return result;
-		}
+		public RelayLink(RelayBase<Action<T,U,V,W>> relay) : base(relay){}
 	}
 }
 #endregion
