@@ -14,10 +14,6 @@ namespace Sigtrap.Relays {
 		/// </summary>
 		bool allowDuplicates {get; set;}
 		/// <summary>
-		/// Checks if the bound Relay is null.
-		/// </summary>
-		bool relayExists {get;}
-		/// <summary>
 		/// How many persistent listeners does the bound Relay currently have?
 		/// </summary>
 		uint listenerCount {get;}
@@ -39,10 +35,11 @@ namespace Sigtrap.Relays.Binding {
 
 		#region Constructors
 		private RelayBinding(){}	// Private empty constructor to force use of params
-		public RelayBinding(IRelayLinkBase<TDelegate> relay, TDelegate listener, bool allowDuplicates) : this(){
+		public RelayBinding(IRelayLinkBase<TDelegate> relay, TDelegate listener, bool allowDuplicates, bool isListening) : this(){
 			_relay = relay;
 			_listener = listener;
 			this.allowDuplicates = allowDuplicates;
+			enabled = isListening;
 		}
 		#endregion
 
@@ -55,10 +52,6 @@ namespace Sigtrap.Relays.Binding {
 		/// Should enabling the binding add the listener to the Relay if already added elsewhere?
 		/// </summary>
 		public bool allowDuplicates {get; set;}
-		/// <summary>
-		/// Checks if the bound Relay is null.
-		/// </summary>
-		public bool relayExists {get {return _relay != null;}}
 		/// <summary>
 		/// How many persistent listeners does the bound Relay currently have?
 		/// </summary>

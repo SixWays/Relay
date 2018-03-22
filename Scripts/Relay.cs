@@ -125,7 +125,7 @@ namespace Sigtrap.Relays {
 		/// <param name="allowDuplicates">If <c>false</c>, checks whether persistent listener is already present.</param>
 		public IRelayBinding<TDelegate> BindListener(TDelegate listener, bool allowDuplicates=false){
 			if (AddListener(listener, allowDuplicates)){
-				return new RelayBinding<TDelegate>(this, listener, allowDuplicates);
+				return new RelayBinding<TDelegate>(this, listener, allowDuplicates, true);
 			}
 			return null;
 		}
