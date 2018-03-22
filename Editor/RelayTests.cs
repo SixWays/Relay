@@ -608,6 +608,19 @@ namespace Sigtrap.Relays.Tests {
 		[TestCase(2)]
 		[TestCase(3)]
 		[TestCase(4)]
+		public void TestBindListenerViaLink(int args){
+			var r = CreateRelay(args);
+			BindListener1ViaLink(r, args, false);
+			AssertListeners(r, args, 1, 0);
+			Dispatch(r, args);
+			Assert.That(calls == 1);
+		}
+		[Test]
+		[TestCase(0)]
+		[TestCase(1)]
+		[TestCase(2)]
+		[TestCase(3)]
+		[TestCase(4)]
 		public void TestBindingToggle(int args){
 			var r = CreateRelay(args);
 			object b = BindListener1(r, args, false);
@@ -782,6 +795,21 @@ namespace Sigtrap.Relays.Tests {
 					return (r as Relay<int, float, bool>).BindListener(DummyDelegate1,allowDups);
 				case 4:
 					return (r as Relay<int, float, bool, uint>).BindListener(DummyDelegate1,allowDups);
+			}
+			return null;
+		}
+		object BindListener1ViaLink(object r, int args, bool allowDups=false){
+			switch (args){
+				case 0:
+					return (r as Relay).link.BindListener(DummyDelegate1,allowDups);
+				case 1:
+					return (r as Relay<int>).link.BindListener(DummyDelegate1,allowDups);
+				case 2:
+					return (r as Relay<int, float>).link.BindListener(DummyDelegate1,allowDups);
+				case 3:
+					return (r as Relay<int, float, bool>).link.BindListener(DummyDelegate1,allowDups);
+				case 4:
+					return (r as Relay<int, float, bool, uint>).link.BindListener(DummyDelegate1,allowDups);
 			}
 			return null;
 		}
