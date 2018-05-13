@@ -1,16 +1,16 @@
 ﻿// Track all Relays to diagnose dangling listeners.
 //   Define SIGTRAP_RELAY_DBG to enable
 //   Adds ENORMOUS CPU/GC overhead!
-//   set Relay.recordDebugData = false to disable temporarily
+//   set _RelayDebugger.recordDebugData = false to disable temporarily
 //     (still has some overhead on RemoveListener)
 //
-// Relay.ListRelays() gives a nice(ish) rundown of all existing listeners across all existing Relays
+// _RelayDebugger.LogRelays() gives a nice(ish) rundown of all existing listeners across all existing Relays
 // To isolate a particular observer (i.e. something with methods/delegates listening to one or more Relays)
-//   use Relay.ListRelays(<your listener object>).
+//   use _RelayDebugger.LogRelays(<your listener object>).
 //
 // It's impossible to know which object "owns" a particular Relay since any instance field is just a reference to the Relay on the heap.
 // So it CAN be tricky to work out where exactly a dangling listener might be.
-// To try and alleviate this, in debug mode a stack trace is stored of every AddListener call, which gets output by ListRelays.
+// To try and alleviate this, in debug mode a stack trace is stored of every AddListener call, which gets output by LogRelays.
 // Hopefully in most cases these traces can help you identify which Relay it refers to.
 
 #if SIGTRAP_RELAY_DBG

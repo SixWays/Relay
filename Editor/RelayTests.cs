@@ -247,6 +247,20 @@ namespace Sigtrap.Relays.Tests {
 		[TestCase(2)]
 		[TestCase(3)]
 		[TestCase(4)]
+		public void TestRemoveOnce(int args){
+			var r = CreateRelay(args);
+			AddListenerOnce1(r,args);
+			Assert.That(RemListenerOnce1(r,args));
+			AssertListeners(r, args, 0, 0);
+			Dispatch(r,args);
+			Assert.That(calls == 0);
+		}
+		[Test]
+		[TestCase(0)]
+		[TestCase(1)]
+		[TestCase(2)]
+		[TestCase(3)]
+		[TestCase(4)]
 		public void TestDupCallsOnceRemoval(int args){
 			var r = CreateRelay(args);
 			AddListenerOnce1(r,args);
@@ -377,6 +391,37 @@ namespace Sigtrap.Relays.Tests {
 			Dispatch(r,args);
 			Assert.That(calls == 5);
 		}
+		[Test]
+		[TestCase(0)]
+		[TestCase(1)]
+		[TestCase(2)]
+		[TestCase(3)]
+		[TestCase(4)]
+		public void TestSelfRemovalOnce(int args){
+			object r = CreateSelfRemovalOnceRelay(args, false);
+			AssertListeners(r, args, 0, 1);
+			Dispatch(r,args);
+			Assert.That(calls == 1);
+			AssertListeners(r, args, 0, 0);
+			Dispatch(r,args);
+			Assert.That(calls == 1);
+		}
+		[Test]
+		[TestCase(0)]
+		[TestCase(1)]
+		[TestCase(2)]
+		[TestCase(3)]
+		[TestCase(4)]
+		public void TestSelfRemovalOnceWithMultipleListeners(int args){
+			object r = CreateSelfRemovalOnceRelay(args, true);
+			AssertListeners(r, args, 0, 2);
+			AddListener2(r,args);
+			Dispatch(r,args);
+			Assert.That(calls == 3);
+			AssertListeners(r, args, 1, 0);
+			Dispatch(r,args);
+			Assert.That(calls == 4);
+		}
 
 		object CreateSelfRemovalRelay(int args, bool addListenerBefore){
 			object r = null;
@@ -414,6 +459,42 @@ namespace Sigtrap.Relays.Tests {
 			}
 			return r;
 		}
+		object CreateSelfRemovalOnceRelay(int args, bool addListenerBefore){
+			object r = null;
+			switch (args){
+				case 0:
+					myRelay = new Relay();
+					if (addListenerBefore) myRelay.AddOnce(DummyDelegate1);
+					myRelay.AddOnce(SelfRemDelegateOnce);
+					r = myRelay;
+					break;
+				case 1:
+					myRelay1 = new Relay<int>();
+					if (addListenerBefore) myRelay1.AddOnce(DummyDelegate1);
+					myRelay1.AddOnce(SelfRemDelegateOnce);
+					r = myRelay1;
+					break;
+				case 2:
+					myRelay2 = new Relay<int, float>();
+					if (addListenerBefore) myRelay2.AddOnce(DummyDelegate1);
+					myRelay2.AddOnce(SelfRemDelegateOnce);
+					r = myRelay2;
+					break;
+				case 3:
+					myRelay3 = new Relay<int, float, bool>();
+					if (addListenerBefore) myRelay3.AddOnce(DummyDelegate1);
+					myRelay3.AddOnce(SelfRemDelegateOnce);
+					r = myRelay3;
+					break;
+				case 4:
+					myRelay4 = new Relay<int, float, bool, uint>();
+					if (addListenerBefore) myRelay4.AddOnce(DummyDelegate1);
+					myRelay4.AddOnce(SelfRemDelegateOnce);
+					r = myRelay4;
+					break;
+			}
+			return r;
+		}
 		#endregion
 
 		#region Syncronous Addition
@@ -429,6 +510,24 @@ namespace Sigtrap.Relays.Tests {
 			Assert.That(calls == 1);
 			Dispatch(r,args);
 			Assert.That(calls == 3);
+		}
+		[Test]
+		[TestCase(0)]
+		[TestCase(1)]
+		[TestCase(2)]
+		[TestCase(3)]
+		[TestCase(4)]
+		public void TestSyncAddOnce(int args){
+			object r = CreateSyncAddOnceRelay(args);
+			AssertListeners(r, args, 0, 1);	// Add once
+			Dispatch(r,args);
+			AssertListeners(r, args, 0, 1);	// Add once, self auto-removed
+			Assert.That(calls == 1);
+			Dispatch(r,args);
+			AssertListeners(r, args, 0, 0);	// Added delegate auto-removed
+			Assert.That(calls == 2);
+			Dispatch(r,args);
+			Assert.That(calls == 2);		// No listeners left
 		}
 
 		object CreateSyncAddRelay(int args){
@@ -457,6 +556,37 @@ namespace Sigtrap.Relays.Tests {
 				case 4:
 					myRelay4 = new Relay<int, float, bool, uint>();
 					myRelay4.AddListener(SyncAddDelegate);
+					r = myRelay4;
+					break;
+			}
+			return r;
+		}
+		object CreateSyncAddOnceRelay(int args){
+			object r = null;
+			switch (args){
+				case 0:
+					myRelay = new Relay();
+					myRelay.AddOnce(SyncAddDelegateOnce);
+					r = myRelay;
+					break;
+				case 1:
+					myRelay1 = new Relay<int>();
+					myRelay1.AddOnce(SyncAddDelegateOnce);
+					r = myRelay1;
+					break;
+				case 2:
+					myRelay2 = new Relay<int, float>();
+					myRelay2.AddOnce(SyncAddDelegateOnce);
+					r = myRelay2;
+					break;
+				case 3:
+					myRelay3 = new Relay<int, float, bool>();
+					myRelay3.AddOnce(SyncAddDelegateOnce);
+					r = myRelay3;
+					break;
+				case 4:
+					myRelay4 = new Relay<int, float, bool, uint>();
+					myRelay4.AddOnce(SyncAddDelegateOnce);
 					r = myRelay4;
 					break;
 			}
@@ -491,6 +621,42 @@ namespace Sigtrap.Relays.Tests {
 			Dispatch(r,args);
 			Assert.That(calls == 4);
 		}
+		[Test]
+		[TestCase(0)]
+		[TestCase(1)]
+		[TestCase(2)]
+		[TestCase(3)]
+		[TestCase(4)]
+		public void TestSyncAddAndSelfRemovalOnce(int args){
+			object r = CreateSyncAddSelfRemOnceRelay(args, false);
+			AssertListeners(r, args, 0, 1);	// Add once
+			Dispatch(r,args);
+			AssertListeners(r, args, 0, 1);	// Add once; self removed
+			Assert.That(calls == 1);
+			Dispatch(r,args);
+			Assert.That(calls == 2);
+			AssertListeners(r, args, 0, 0);	// Added delegate auto-removed
+			Dispatch(r,args);
+			Assert.That(calls == 2);		// No listeners left
+		}
+		[Test]
+		[TestCase(0)]
+		[TestCase(1)]
+		[TestCase(2)]
+		[TestCase(3)]
+		[TestCase(4)]
+		public void TestSyncAddAndSelfRemovalWithMultipleListenersOnce(int args){
+			object r = CreateSyncAddSelfRemOnceRelay(args, true);
+			AssertListeners(r, args, 0, 2);	// 2x add once
+			Dispatch(r,args);
+			Assert.That(calls == 2);
+			AssertListeners(r, args, 0, 1);	// Add once; self removed and added delegate auto-removed
+			Dispatch(r,args);
+			Assert.That(calls == 3);
+			AssertListeners(r, args, 0, 0);	// Add delegate auto-removed
+			Dispatch(r,args);
+			Assert.That(calls == 3);		// No listeners left
+		}
 
 		object CreateSyncAddSelfRemRelay(int args, bool addListenerBefore){
 			object r = null;
@@ -523,6 +689,42 @@ namespace Sigtrap.Relays.Tests {
 					myRelay4 = new Relay<int, float, bool, uint>();
 					if (addListenerBefore) myRelay4.AddListener(DummyDelegate1);
 					myRelay4.AddListener(SyncAddSelfRemDelegate);
+					r = myRelay4;
+					break;
+			}
+			return r;
+		}
+		object CreateSyncAddSelfRemOnceRelay(int args, bool addListenerBefore){
+			object r = null;
+			switch (args){
+				case 0:
+					myRelay = new Relay();
+					if (addListenerBefore) myRelay.AddOnce(DummyDelegate1);
+					myRelay.AddOnce(SyncAddSelfRemDelegateOnce);
+					r = myRelay;
+					break;
+				case 1:
+					myRelay1 = new Relay<int>();
+					if (addListenerBefore) myRelay1.AddOnce(DummyDelegate1);
+					myRelay1.AddOnce(SyncAddSelfRemDelegateOnce);
+					r = myRelay1;
+					break;
+				case 2:
+					myRelay2 = new Relay<int, float>();
+					if (addListenerBefore) myRelay2.AddOnce(DummyDelegate1);
+					myRelay2.AddOnce(SyncAddSelfRemDelegateOnce);
+					r = myRelay2;
+					break;
+				case 3:
+					myRelay3 = new Relay<int, float, bool>();
+					if (addListenerBefore) myRelay3.AddOnce(DummyDelegate1);
+					myRelay3.AddOnce(SyncAddSelfRemDelegateOnce);
+					r = myRelay3;
+					break;
+				case 4:
+					myRelay4 = new Relay<int, float, bool, uint>();
+					if (addListenerBefore) myRelay4.AddOnce(DummyDelegate1);
+					myRelay4.AddOnce(SyncAddSelfRemDelegateOnce);
 					r = myRelay4;
 					break;
 			}
@@ -927,6 +1129,36 @@ namespace Sigtrap.Relays.Tests {
 					break;
 			}
 		}
+		bool RemListenerOnce1(object r, int args){
+			switch (args){
+				case 0:
+					return (r as Relay).RemoveOnce(DummyDelegate1);
+				case 1:
+					return (r as Relay<int>).RemoveOnce(DummyDelegate1);
+				case 2:
+					return (r as Relay<int, float>).RemoveOnce(DummyDelegate1);
+				case 3:
+					return (r as Relay<int, float, bool>).RemoveOnce(DummyDelegate1);
+				case 4:
+					return (r as Relay<int, float, bool, uint>).RemoveOnce(DummyDelegate1);
+			}
+			return false;
+		}
+		bool RemListenerOnce2(object r, int args){
+			switch (args){
+				case 0:
+					return (r as Relay).RemoveOnce(DummyDelegate2);
+				case 1:
+					return (r as Relay<int>).RemoveOnce(DummyDelegate2);
+				case 2:
+					return (r as Relay<int, float>).RemoveOnce(DummyDelegate2);
+				case 3:
+					return (r as Relay<int, float, bool>).RemoveOnce(DummyDelegate2);
+				case 4:
+					return (r as Relay<int, float, bool, uint>).RemoveOnce(DummyDelegate2);
+			}
+			return false;
+		}
 		void ClearListeners(object r, int args, bool persistent, bool once){
 			switch (args){
 				case 0:
@@ -978,11 +1210,13 @@ namespace Sigtrap.Relays.Tests {
 			return 999;
 		}
 		void AssertListeners(object r, int args, int persistent, int onetime){
-			Assert.That((int)GetListeners(r,args) == persistent && (int)GetListenersOnce(r,args) == onetime);
+			Assert.That((int)GetListeners(r,args) == persistent);
+			Assert.That((int)GetListenersOnce(r,args) == onetime);
 		}
 		#endregion
 
 		#region Delegates
+		#region D1
 		void DummyDelegate1(){
 			++calls;
 		}
@@ -998,7 +1232,9 @@ namespace Sigtrap.Relays.Tests {
 		void DummyDelegate1(int i, float f, bool b, uint u){
 			DummyDelegate1();
 		}
+		#endregion
 
+		#region D2
 		void DummyDelegate2(){
 			DummyDelegate1();
 		}
@@ -1014,7 +1250,9 @@ namespace Sigtrap.Relays.Tests {
 		void DummyDelegate2(int i, float f, bool b, uint u){
 			DummyDelegate2();
 		}
+		#endregion
 
+		#region Self-Removal
 		void SelfRemDelegate(){
 			DummyDelegate1();
 			myRelay.RemoveListener(SelfRemDelegate);
@@ -1035,7 +1273,32 @@ namespace Sigtrap.Relays.Tests {
 			DummyDelegate1();
 			myRelay4.RemoveListener(SelfRemDelegate);
 		}
+		#endregion
 
+		#region Self-Removal Once
+		void SelfRemDelegateOnce(){
+			DummyDelegate1();
+			myRelay.RemoveOnce(SelfRemDelegateOnce);
+		}
+		void SelfRemDelegateOnce(int i){
+			DummyDelegate1();
+			myRelay1.RemoveOnce(SelfRemDelegateOnce);
+		}
+		void SelfRemDelegateOnce(int i, float f){
+			DummyDelegate1();
+			myRelay2.RemoveOnce(SelfRemDelegateOnce);
+		}
+		void SelfRemDelegateOnce(int i, float f, bool b){
+			DummyDelegate1();
+			myRelay3.RemoveOnce(SelfRemDelegateOnce);
+		}
+		void SelfRemDelegateOnce(int i, float f, bool b, uint u){
+			DummyDelegate1();
+			myRelay4.RemoveOnce(SelfRemDelegateOnce);
+		}
+		#endregion
+
+		#region Synchronous Addition
 		void SyncAddDelegate(){
 			DummyDelegate1();
 			myRelay.AddListener(DummyDelegate2);
@@ -1056,7 +1319,32 @@ namespace Sigtrap.Relays.Tests {
 			DummyDelegate1();
 			myRelay4.AddListener(DummyDelegate2);
 		}
+		#endregion
 
+		#region Synchronous Addition Once
+		void SyncAddDelegateOnce(){
+			DummyDelegate1();
+			myRelay.AddOnce(DummyDelegate2);
+		}
+		void SyncAddDelegateOnce(int i){
+			DummyDelegate1();
+			myRelay1.AddOnce(DummyDelegate2);
+		}
+		void SyncAddDelegateOnce(int i, float f){
+			DummyDelegate1();
+			myRelay2.AddOnce(DummyDelegate2);
+		}
+		void SyncAddDelegateOnce(int i, float f, bool b){
+			DummyDelegate1();
+			myRelay3.AddOnce(DummyDelegate2);
+		}
+		void SyncAddDelegateOnce(int i, float f, bool b, uint u){
+			DummyDelegate1();
+			myRelay4.AddOnce(DummyDelegate2);
+		}
+		#endregion
+
+		#region Synchronous Addition Self Removal
 		void SyncAddSelfRemDelegate(){
 			DummyDelegate1();
 			myRelay.AddListener(DummyDelegate2);
@@ -1082,6 +1370,35 @@ namespace Sigtrap.Relays.Tests {
 			myRelay4.AddListener(DummyDelegate2);
 			myRelay4.RemoveListener(SyncAddSelfRemDelegate);
 		}
+		#endregion
+
+		#region Synchronous Addition Self Removal Once
+		void SyncAddSelfRemDelegateOnce(){
+			DummyDelegate1();
+			myRelay.AddOnce(DummyDelegate2);
+			myRelay.RemoveOnce(SyncAddSelfRemDelegate);
+		}
+		void SyncAddSelfRemDelegateOnce(int i){
+			DummyDelegate1();
+			myRelay1.AddOnce(DummyDelegate2);
+			myRelay1.RemoveOnce(SyncAddSelfRemDelegate);
+		}
+		void SyncAddSelfRemDelegateOnce(int i, float f){
+			DummyDelegate1();
+			myRelay2.AddOnce(DummyDelegate2);
+			myRelay2.RemoveOnce(SyncAddSelfRemDelegate);
+		}
+		void SyncAddSelfRemDelegateOnce(int i, float f, bool b){
+			DummyDelegate1();
+			myRelay3.AddOnce(DummyDelegate2);
+			myRelay3.RemoveOnce(SyncAddSelfRemDelegate);
+		}
+		void SyncAddSelfRemDelegateOnce(int i, float f, bool b, uint u){
+			DummyDelegate1();
+			myRelay4.AddOnce(DummyDelegate2);
+			myRelay4.RemoveOnce(SyncAddSelfRemDelegate);
+		}
+		#endregion
 		#endregion
 	}
 }

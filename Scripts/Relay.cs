@@ -148,7 +148,9 @@ namespace Sigtrap.Relays {
 			}
 			_listenersOnce[_onceCount] = listener;
 			++_onceCount;
-
+			#if SIGTRAP_RELAY_DBG
+			_RelayDebugger.DebugAddListener(this, listener);
+			#endif
 			return true;
 		}
 		/// <summary>
@@ -171,6 +173,26 @@ namespace Sigtrap.Relays {
 			return result;
 		}
 		/// <summary>
+		/// Removes a one-time listener, if present.
+		/// </summary>
+		/// <returns><c>true</c>, if listener was removed, <c>false</c> otherwise.</returns>
+		/// <param name="listener">Listener.</param>
+		public bool RemoveOnce(TDelegate listener){
+			bool result = false;
+			for (uint i=0; i<_onceCount; ++i){
+				if (_listenersOnce[i].Equals(listener)) {
+					RemoveOnceAt(i);
+					result = true;
+					break;
+				}
+			}
+			#if SIGTRAP_RELAY_DBG
+			if (result) _RelayDebugger.DebugRemListener(this, listener);
+			#endif
+			return result;
+		}
+		#endregion
+		/// <summary>
 		/// Removes all listeners.
 		/// </summary>
 		/// <param name="removePersistentListeners">If set to <c>true</c> remove persistent listeners.</param>
@@ -190,11 +212,13 @@ namespace Sigtrap.Relays {
 				_onceCount = 0;
 			}
 		}
-		#endregion
 
 		#region Internal
 		protected void RemoveAt(uint i){
 			_count = RemoveAt(_listeners, _count, i);
+		}
+		protected void RemoveOnceAt(uint i){
+			_onceCount = RemoveAt(_listenersOnce, _onceCount, i);
 		}
 		protected uint RemoveAt(TDelegate[] arr, uint count, uint i){
 			--count;
@@ -255,9 +279,16 @@ namespace Sigtrap.Relays {
 			// One-time listeners - reversed for safe addition and auto-removal
 			for (uint i=_onceCount; i>0; --i){
 				if (_listenersOnce[i-1] != null){
-					_listenersOnce[i-1]();
+					var l = _listenersOnce[i-1];
+					l();
+					// Check for self-removal before auto-removing
+					if (_listenersOnce[i-1] == l){
+						#if SIGTRAP_RELAY_DBG
+						_RelayDebugger.DebugRemListener(this, _listenersOnce[i-1]);
+						#endif
+						_onceCount = RemoveAt(_listenersOnce, _onceCount, i-1);
+					}
 				}
-				_onceCount = RemoveAt(_listenersOnce, _onceCount, i-1);
 			}
 		}
 	}
@@ -288,9 +319,15 @@ namespace Sigtrap.Relays {
 			}
 			for (uint i=_onceCount; i>0; --i){
 				if (_listenersOnce[i-1] != null){
-					_listenersOnce[i-1](t);
+					var l = _listenersOnce[i-1];
+					l(t);
+					if (_listenersOnce[i-1] == l){
+						#if SIGTRAP_RELAY_DBG
+						_RelayDebugger.DebugRemListener(this, _listenersOnce[i-1]);
+						#endif
+						_onceCount = RemoveAt(_listenersOnce, _onceCount, i-1);
+					}
 				}
-				_onceCount = RemoveAt(_listenersOnce, _onceCount, i-1);
 			}
 		}
 	}
@@ -321,9 +358,15 @@ namespace Sigtrap.Relays {
 			}
 			for (uint i=_onceCount; i>0; --i){
 				if (_listenersOnce[i-1] != null){
-					_listenersOnce[i-1](t, u);
+					var l = _listenersOnce[i-1];
+					l(t, u);
+					if (_listenersOnce[i-1] == l){
+						#if SIGTRAP_RELAY_DBG
+						_RelayDebugger.DebugRemListener(this, _listenersOnce[i-1]);
+						#endif
+						_onceCount = RemoveAt(_listenersOnce, _onceCount, i-1);
+					}
 				}
-				_onceCount = RemoveAt(_listenersOnce, _onceCount, i-1);
 			}
 		}
 	}
@@ -354,9 +397,15 @@ namespace Sigtrap.Relays {
 			}
 			for (uint i=_onceCount; i>0; --i){
 				if (_listenersOnce[i-1] != null){
-					_listenersOnce[i-1](t, u, v);
+					var l = _listenersOnce[i-1];
+					l(t, u, v);
+					if (_listenersOnce[i-1] == l){
+						#if SIGTRAP_RELAY_DBG
+						_RelayDebugger.DebugRemListener(this, _listenersOnce[i-1]);
+						#endif
+						_onceCount = RemoveAt(_listenersOnce, _onceCount, i-1);
+					}
 				}
-				_onceCount = RemoveAt(_listenersOnce, _onceCount, i-1);
 			}
 		}
 	}
@@ -387,9 +436,15 @@ namespace Sigtrap.Relays {
 			}
 			for (uint i=_onceCount; i>0; --i){
 				if (_listenersOnce[i-1] != null){
-					_listenersOnce[i-1](t, u, v, w);
+					var l = _listenersOnce[i-1];
+					l(t, u, v, w);
+					if (_listenersOnce[i-1] == l){
+						#if SIGTRAP_RELAY_DBG
+						_RelayDebugger.DebugRemListener(this, _listenersOnce[i-1]);
+						#endif
+						_onceCount = RemoveAt(_listenersOnce, _onceCount, i-1);
+					}
 				}
-				_onceCount = RemoveAt(_listenersOnce, _onceCount, i-1);
 			}
 		}
 	}
