@@ -13,10 +13,10 @@ C# `event` multicasting is a nice language-level feature, but in Unity's version
   * Relay uses a dynamic array of singlecast delegates
 * Performant addition, removal and dispatch
   * Geometric array resize (like `List<>.Add()`) amortizes addition costs
-  * Array item removal is faster than `List<>.Remove()`
   * Dispatch virtually as fast as native multicast
 * Battle-tested
   * Heavily used in core code of our game [Sublevel Zero](http://www.sublevelzerogame.com) on PC, VR, PS4 and Xbox One
+  * ~100% unit test coverage (unit tests included)
 
 [Read the wiki](https://github.com/SixWays/Relay/wiki) for detailed instructions.
   
@@ -43,4 +43,4 @@ All other operations are allocation-free. Note that this is *worst-case* GC perf
 
 Note: Under .NET 4.6 `event` addition and removal is 2-7x faster than under Unity.
 
-Perf tests and a full suite of unit tests are included in Relay/Editor.
+Perf tests and unit tests are included in Relay/Editor.
