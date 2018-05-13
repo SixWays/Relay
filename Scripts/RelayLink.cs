@@ -52,6 +52,12 @@ namespace Sigtrap.Relays {
 		/// <param name="listener">Listener.</param>
 		bool RemoveListener(TDelegate listener);
 		/// <summary>
+		/// Removes a listener added with AddOnce, if present.
+		/// </summary>
+		/// <returns><c>true</c>, if listener was removed, <c>false</c> otherwise.</returns>
+		/// <param name="listener">Listener.</param>
+		bool RemoveOnce(TDelegate listener);
+		/// <summary>
 		/// Removes all listeners.
 		/// </summary>
 		/// <param name="removePersistentListeners">If set to <c>true</c> remove persistent listeners.</param>
@@ -120,6 +126,12 @@ namespace Sigtrap.Relays.Link {
 		/// <param name="listener">Listener.</param>
 		public bool RemoveListener(TDelegate listener){
 			return _relay.RemoveListener(listener);
+		}
+		/// <summary>Removes a listener added with AddOnce, if present.</summary>
+		/// <returns><c>true</c>, if listener was removed, <c>false</c> otherwise.</returns>
+		/// <param name="listener">Listener.</param>
+		public bool RemoveOnce(TDelegate listener){
+			return _relay.RemoveOnce(listener);
 		}
 		/// <summary>Removes all listeners.</summary>
 		/// <param name="removePersistentListeners">If set to <c>true</c> remove persistent listeners.</param>
