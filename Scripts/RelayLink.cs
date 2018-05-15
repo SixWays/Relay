@@ -35,7 +35,7 @@ namespace Sigtrap.Relays {
 		/// <returns>A new RelayBinding instance if successful, <c>null</c> otherwise.</returns>
 		/// <param name="listener">Listener.</param>
 		/// <param name="allowDuplicates">If <c>false</c>, checks whether persistent listener is already present.</param>
-		IRelayBinding<TDelegate> BindListener(TDelegate listener, bool allowDuplicates=false);
+		IRelayBinding BindListener(TDelegate listener, bool allowDuplicates=false);
 		/// <summary>
 		/// Adds a one-time listener.
 		/// These listeners are removed after one Dispatch.
@@ -109,7 +109,7 @@ namespace Sigtrap.Relays.Link {
 		/// <returns>A new RelayBinding instance if successful, <c>null</c> otherwise.</returns>
 		/// <param name="listener">Listener.</param>
 		/// <param name="allowDuplicates">If <c>false</c>, checks whether persistent listener is already present.</param>
-		public IRelayBinding<TDelegate> BindListener(TDelegate listener, bool allowDuplicates=false){
+		public IRelayBinding BindListener(TDelegate listener, bool allowDuplicates=false){
 			return _relay.BindListener(listener, allowDuplicates);
 		}
 		/// <summary>

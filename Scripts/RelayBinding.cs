@@ -4,7 +4,7 @@ using UnityEngine;
 
 #region Interface
 namespace Sigtrap.Relays {
-	public interface IRelayBinding<TDelegate> where TDelegate:class {
+	public interface IRelayBinding {
 		/// <summary>
 		/// Is the listener currently subscribed to the Relay?
 		/// </summary>
@@ -29,7 +29,7 @@ namespace Sigtrap.Relays {
 
 #region Implementation
 namespace Sigtrap.Relays.Binding {
-	public class RelayBinding<TDelegate> : IRelayBinding<TDelegate> where TDelegate:class {
+	public class RelayBinding<TDelegate> : IRelayBinding where TDelegate:class {
 		protected IRelayLinkBase<TDelegate> _relay {get; private set;}
 		protected TDelegate _listener {get;	private set;}
 

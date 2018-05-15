@@ -1016,42 +1016,10 @@ namespace Sigtrap.Relays.Tests {
 			return null;
 		}
 		void EnableBinding(object b, int args, bool enable){
-			switch (args){
-				case 0:
-					(b as IRelayBinding<System.Action>).Enable(enable);
-					break;
-				case 1:
-					(b as IRelayBinding<System.Action<int>>).Enable(enable);
-					break;
-				case 2:
-					(b as IRelayBinding<System.Action<int,float>>).Enable(enable);
-					break;
-				case 3:
-					(b as IRelayBinding<System.Action<int,float,bool>>).Enable(enable);
-					break;
-				case 4:
-					(b as IRelayBinding<System.Action<int,float,bool,uint>>).Enable(enable);
-					break;
-			}
+			(b as IRelayBinding).Enable(enable);
 		}
 		void EnableDuplicateBinding(object b, int args, bool allowDups){
-			switch (args){
-				case 0:
-					(b as IRelayBinding<System.Action>).allowDuplicates = allowDups;
-					break;
-				case 1:
-					(b as IRelayBinding<System.Action<int>>).allowDuplicates = allowDups;
-					break;
-				case 2:
-					(b as IRelayBinding<System.Action<int,float>>).allowDuplicates = allowDups;
-					break;
-				case 3:
-					(b as IRelayBinding<System.Action<int,float,bool>>).allowDuplicates = allowDups;
-					break;
-				case 4:
-					(b as IRelayBinding<System.Action<int,float,bool,uint>>).allowDuplicates = allowDups;
-					break;
-			}
+			(b as IRelayBinding).allowDuplicates = allowDups;
 		}
 		void AddListenerOnce1(object r, int args, bool allowDups=false){
 			switch (args){
