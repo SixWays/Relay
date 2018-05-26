@@ -34,30 +34,55 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using Sigtrap.Relays.Link;
 using Sigtrap.Relays.Binding;
 
 namespace Sigtrap.Relays {
 	public abstract class RelayBase<TDelegate> : IRelayLinkBase<TDelegate> where TDelegate:class {
 
-	    public class RelayDelegateCollection
+        public struct RelayDelegateCollection
 	    {
 	        public TDelegate[] listeners { get; private set; }
-	        public uint count { get; private set; }
+            public uint count { get; private set; }
 	        private uint _cap;
 
-	        public RelayDelegateCollection()
+	        public RelayDelegateCollection(uint initSize) : this()
 	        {
-	            listeners = new TDelegate[1];
-	            _cap = 1;
+	            listeners = new TDelegate[initSize];
+	            _cap = initSize;
+	            count = 0;
 	        }
 
 	        public bool Add(TDelegate listener, bool allowDuplicates = false)
 	        {
-	            if (!allowDuplicates && Contains(listener)) return false;
+	            if (!allowDuplicates)
+	            {
+                    //Inlined 'Contains'
+	                for (uint i = 0; i < count; ++i)
+	                {
+	                    if (listeners[i].Equals(listener))
+	                    {
+	                        return false;
+	                    }
+	                }
+	            }
 
-	            if (RequiresExpansion())
-	                Expand();
+                //Expand if needed
+	            if (count == _cap)
+	            {
+	                var newCap = _cap == 0 ? 1 : (_cap * 2);
+
+	                TDelegate[] newArr = new TDelegate[newCap];
+	                for (int i = 0; i < count; ++i)
+	                {
+	                    newArr[i] = listeners[i];
+	                }
+
+	                _cap = newCap;
+	                listeners = newArr;
+                }
 
 	            listeners[count] = listener;
 	            ++count;
@@ -102,25 +127,6 @@ namespace Sigtrap.Relays {
 	            count--;
 	        }
 
-	        private bool RequiresExpansion()
-	        {
-	            return count == _cap;
-	        }
-
-            private void Expand()
-	        {
-	            var newCap = _cap * 2;
-
-	            TDelegate[] newArr = new TDelegate[newCap];
-	            for (int i = 0; i < count; ++i)
-	            {
-	                newArr[i] = listeners[i];
-	            }
-
-	            _cap = newCap;
-                listeners = newArr;
-	        }
-
 	        public void Clear()
 	        {
 	            Array.Clear(listeners, 0, (int)_cap);
@@ -140,8 +146,8 @@ namespace Sigtrap.Relays {
 
 		protected bool _hasLink = false;
 
-	    protected RelayDelegateCollection persistantListeners = new RelayDelegateCollection();
-	    protected RelayDelegateCollection onceListeners = new RelayDelegateCollection();
+	    protected RelayDelegateCollection persistantListeners = new RelayDelegateCollection(1);
+	    protected RelayDelegateCollection onceListeners = new RelayDelegateCollection(1);
 
         protected static IndexOutOfRangeException _eIOOR = new IndexOutOfRangeException("Fewer listeners than expected. See guidelines in Relay.cs on using RemoveListener and RemoveAll within Relay listeners.");
 
@@ -189,6 +195,7 @@ namespace Sigtrap.Relays {
 		public bool AddListener(TDelegate listener, bool allowDuplicates=false){
 		    return Add(persistantListeners, listener, allowDuplicates);
 		}
+
 		/// <summary>
 		/// Adds listener and creates a RelayBinding between the listener and the Relay.
 		/// The RelayBinding can be used to enable/disable the listener.
@@ -268,7 +275,7 @@ namespace Sigtrap.Relays {
 #if SIGTRAP_RELAY_DBG
 	        if (wasAdded) _RelayDebugger.DebugAddListener(this, listener);
 #endif
-	        return true;
+	        return wasAdded;
         }
 
 	    private bool Remove(RelayDelegateCollection delegateCollection, TDelegate listener){
@@ -308,7 +315,7 @@ namespace Sigtrap.Relays {
 		    IterateAndInvoke(onceListeners, true);
 		}
 
-	    void IterateAndInvoke(RelayDelegateCollection collection, bool removeAfterInvoke){
+	    private static void IterateAndInvoke(RelayDelegateCollection collection, bool removeAfterInvoke){
 	        // Reversal allows self-removal during dispatch (doesn't skip next listener)
 	        // Reversal allows safe addition during dispatch (doesn't fire immediately)
 	        for (uint i = collection.count; i > 0; --i)
@@ -320,11 +327,11 @@ namespace Sigtrap.Relays {
                     l();
 					if (removeAfterInvoke){
 					    // Check for self-removal before auto-removing
-					    if (onceListeners.listeners[i - 1] == l){
+					    if (collection.listeners[i - 1] == l){
 						    #if SIGTRAP_RELAY_DBG
-						        _RelayDebugger.DebugRemListener(this, onceListeners.listeners[i-1]);
+						        _RelayDebugger.DebugRemListener(this, collection.listeners[i-1]);
                             #endif
-					        onceListeners.RemoveAt(i-1);
+					        collection.RemoveAt(i-1);
 					    }
 					}
 	            }
@@ -364,11 +371,12 @@ namespace Sigtrap.Relays {
 	                var l = collection.listeners[i - 1];
                     l(t);
 					if (removeAfterInvoke){
-					    if (onceListeners.listeners[i - 1] == l){
+					    // Check for self-removal before auto-removing
+					    if (collection.listeners[i - 1] == l){
 						    #if SIGTRAP_RELAY_DBG
-						        _RelayDebugger.DebugRemListener(this, onceListeners.listeners[i-1]);
+						        _RelayDebugger.DebugRemListener(this, collection.listeners[i-1]);
                             #endif
-					        onceListeners.RemoveAt(i-1);
+					        collection.RemoveAt(i-1);
 					    }
 					}
 	            }
@@ -408,11 +416,12 @@ namespace Sigtrap.Relays {
 	                var l = collection.listeners[i - 1];
                     l(t, u);
 					if (removeAfterInvoke){
-					    if (onceListeners.listeners[i - 1] == l){
+					    // Check for self-removal before auto-removing
+					    if (collection.listeners[i - 1] == l){
 						    #if SIGTRAP_RELAY_DBG
-						        _RelayDebugger.DebugRemListener(this, onceListeners.listeners[i-1]);
+						        _RelayDebugger.DebugRemListener(this, collection.listeners[i-1]);
                             #endif
-					        onceListeners.RemoveAt(i-1);
+					        collection.RemoveAt(i-1);
 					    }
 					}
 	            }
@@ -452,11 +461,12 @@ namespace Sigtrap.Relays {
 	                var l = collection.listeners[i - 1];
                     l(t, u, v);
 					if (removeAfterInvoke){
-					    if (onceListeners.listeners[i - 1] == l){
+					    // Check for self-removal before auto-removing
+					    if (collection.listeners[i - 1] == l){
 						    #if SIGTRAP_RELAY_DBG
-						        _RelayDebugger.DebugRemListener(this, onceListeners.listeners[i-1]);
+						        _RelayDebugger.DebugRemListener(this, collection.listeners[i-1]);
                             #endif
-					        onceListeners.RemoveAt(i-1);
+					        collection.RemoveAt(i-1);
 					    }
 					}
 	            }
@@ -496,11 +506,12 @@ namespace Sigtrap.Relays {
 	                var l = collection.listeners[i - 1];
                     l(t, u, v, w);
 					if (removeAfterInvoke){
-					    if (onceListeners.listeners[i - 1] == l){
+					    // Check for self-removal before auto-removing
+					    if (collection.listeners[i - 1] == l){
 						    #if SIGTRAP_RELAY_DBG
-						        _RelayDebugger.DebugRemListener(this, onceListeners.listeners[i-1]);
+						        _RelayDebugger.DebugRemListener(this, collection.listeners[i-1]);
                             #endif
-					        onceListeners.RemoveAt(i-1);
+					        collection.RemoveAt(i-1);
 					    }
 					}
 	            }
