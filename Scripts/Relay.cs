@@ -208,7 +208,7 @@ namespace Sigtrap.Relays {
 				_count = 0;
 			}
 			if (removeOneTimeListeners){
-				Array.Clear(_listeners, 0, (int)_cap);
+				Array.Clear(_listenersOnce, 0, (int)_onceCap);
 				_onceCount = 0;
 			}
 		}
