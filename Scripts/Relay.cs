@@ -196,8 +196,8 @@ namespace Sigtrap.Relays {
 		/// Removes all listeners.
 		/// </summary>
 		/// <param name="removePersistentListeners">If set to <c>true</c> remove persistent listeners.</param>
-		/// <param name="removeOneTimeListeners">If set to <c>true</c>, also remove one-time listeners.</param>
-		public void RemoveAll(bool removePersistentListeners=true, bool removeOneTimeListeners=false){
+		/// <param name="removeOneTimeListeners">If set to <c>true</c>, remove one-time listeners.</param>
+		public void RemoveAll(bool removePersistentListeners=true, bool removeOneTimeListeners=true){
 			if (removePersistentListeners) {
 				#if SIGTRAP_RELAY_DBG
 				for (int i=0; i<_listeners.Length; ++i){

@@ -27,7 +27,7 @@ namespace Sigtrap.Relays {
 		/// <returns><c>True</c> if successfully added listener, <c>false</c> otherwise</returns>
 		/// <param name="listener">Listener.</param>
 		/// <param name="allowDuplicates">If <c>false</c>, checks whether persistent listener is already present.</param>
-		bool AddListener(TDelegate listener, bool allowDuplicates = false);
+		bool AddListener(TDelegate listener, bool allowDuplicates=false);
 		/// <summary>
 		/// Adds listener and creates a RelayBinding between the listener and the Relay.
 		/// The RelayBinding can be used to enable/disable the listener.
@@ -43,7 +43,7 @@ namespace Sigtrap.Relays {
 		/// <returns><c>True</c> if successfully added listener, <c>false</c> otherwise</returns>
 		/// <param name="listener">Listener.</param>
 		/// /// <param name="allowDuplicates">If <c>false</c>, checks whether one-time listener is already present.</param>
-		bool AddOnce(TDelegate listener, bool allowDuplicates = false);
+		bool AddOnce(TDelegate listener, bool allowDuplicates=false);
 
 		/// <summary>
 		/// Removes a persistent listener, if present.
@@ -62,7 +62,7 @@ namespace Sigtrap.Relays {
 		/// </summary>
 		/// <param name="removePersistentListeners">If set to <c>true</c> remove persistent listeners.</param>
 		/// <param name="removeOneTimeListeners">If set to <c>true</c>, also remove one-time listeners.</param>
-		void RemoveAll(bool removePersistentListeners = true, bool removeOneTimeListeners = false);
+		void RemoveAll(bool removePersistentListeners=true, bool removeOneTimeListeners=true);
 	}
 	public interface IRelayLink : IRelayLinkBase<Action> {}
 	public interface IRelayLink<T> : IRelayLinkBase<Action<T>> {}
@@ -99,7 +99,7 @@ namespace Sigtrap.Relays.Link {
 		/// <summary>Adds a persistent listener.</summary>
 		/// <param name="listener">Listener.</param>
 		/// <param name="allowDuplicates">If <c>false</c>, checks whether persistent listener is already present.</param>
-		public bool AddListener(TDelegate listener, bool allowDuplicates = false){
+		public bool AddListener(TDelegate listener, bool allowDuplicates=false){
 			return _relay.AddListener(listener, allowDuplicates);
 		}
 		/// <summary>
@@ -118,7 +118,7 @@ namespace Sigtrap.Relays.Link {
 		/// </summary>
 		/// <param name="listener">Listener.</param>
 		/// /// <param name="allowDuplicates">If <c>false</c>, checks whether one-time listener is already present.</param>
-		public bool AddOnce(TDelegate listener, bool allowDuplicates = false){
+		public bool AddOnce(TDelegate listener, bool allowDuplicates=false){
 			return _relay.AddOnce(listener, allowDuplicates);
 		}
 		/// <summary>Removes a persistent listener, if present.</summary>
@@ -136,7 +136,7 @@ namespace Sigtrap.Relays.Link {
 		/// <summary>Removes all listeners.</summary>
 		/// <param name="removePersistentListeners">If set to <c>true</c> remove persistent listeners.</param>
 		/// <param name="removeOneTimeListeners">If set to <c>true</c>, also remove one-time listeners.</param>
-		public void RemoveAll(bool removePersistentListeners = true, bool removeOneTimeListeners = false){
+		public void RemoveAll(bool removePersistentListeners=true, bool removeOneTimeListeners=true){
 			_relay.RemoveAll(removePersistentListeners, removeOneTimeListeners);
 		}
 		#endregion
