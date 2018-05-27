@@ -294,12 +294,8 @@ namespace Sigtrap.Relays.Tests {
 		[TestCase(2)]
 		[TestCase(3)]
 		[TestCase(4)]
-		public void TestClear(int args){
-			var r = CreateRelay(args);
-			AddListener1(r,args);
-			AddListener2(r,args);
-			ClearListeners(r,args,true,false);
-			AssertListeners(r, args, 0, 0);
+		public void TestRemoveAllAll(int args){
+			TestRemoveAll(args, true, true);
 		}
 		[Test]
 		[TestCase(0)]
@@ -307,12 +303,8 @@ namespace Sigtrap.Relays.Tests {
 		[TestCase(2)]
 		[TestCase(3)]
 		[TestCase(4)]
-		public void TestClearOnce(int args){
-			var r = CreateRelay(args);
-			AddListenerOnce1(r,args);
-			AddListenerOnce2(r,args);
-			ClearListeners(r,args,false,true);
-			AssertListeners(r, args, 0, 0);
+		public void TestRemoveAllPersistent(int args){
+			TestRemoveAll(args, true, false);
 		}
 		[Test]
 		[TestCase(0)]
@@ -320,44 +312,17 @@ namespace Sigtrap.Relays.Tests {
 		[TestCase(2)]
 		[TestCase(3)]
 		[TestCase(4)]
-		public void TestClearAll(int args){
-			var r = CreateRelay(args);
-			AddListener1(r,args);
-			AddListener2(r,args);
-			AddListenerOnce1(r,args);
-			AddListenerOnce2(r,args);
-			ClearListeners(r,args,true,true);
-			AssertListeners(r, args, 0, 0);
+		public void TestRemoveAllOnce(int args){
+			TestRemoveAll(args, false, true);
 		}
-		[Test]
-		[TestCase(0)]
-		[TestCase(1)]
-		[TestCase(2)]
-		[TestCase(3)]
-		[TestCase(4)]
-		public void TestClearPersistentOnly(int args){
+		void TestRemoveAll(int args, bool clearPersistent, bool clearOnce){
 			var r = CreateRelay(args);
 			AddListener1(r,args);
 			AddListener2(r,args);
 			AddListenerOnce1(r,args);
 			AddListenerOnce2(r,args);
-			ClearListeners(r,args,true,false);
-			AssertListeners(r, args, 0, 2);
-		}
-		[Test]
-		[TestCase(0)]
-		[TestCase(1)]
-		[TestCase(2)]
-		[TestCase(3)]
-		[TestCase(4)]
-		public void TestClearOnceOnly(int args){
-			var r = CreateRelay(args);
-			AddListener1(r,args);
-			AddListener2(r,args);
-			AddListenerOnce1(r,args);
-			AddListenerOnce2(r,args);
-			ClearListeners(r,args,false,true);
-			AssertListeners(r, args, 2, 0);
+			RemoveAllListeners(r,args,clearPersistent,clearOnce);
+			AssertListeners(r, args, clearPersistent ? 0 : 2, clearOnce ? 0 : 2);
 		}
 		#endregion
 
@@ -1127,7 +1092,7 @@ namespace Sigtrap.Relays.Tests {
 			}
 			return false;
 		}
-		void ClearListeners(object r, int args, bool persistent, bool once){
+		void RemoveAllListeners(object r, int args, bool persistent, bool once){
 			switch (args){
 				case 0:
 					(r as Relay).RemoveAll(persistent, once);

@@ -18,9 +18,54 @@ namespace Sigtrap.Relays.Tests {
 			TestM1, TestM2, TestM3, TestM4, TestM5, TestM6, TestM7, TestM8, TestM9, TestM10
 		};
 
+		[System.Diagnostics.Conditional("UNITY_EDITOR")]
+		static void DrawProgress(int done, int total, string msg){
+			EditorUtility.DisplayProgressBar("Relay Profile All", msg, (float)done/(float)total);
+		}
+
+		static bool _writeCsv = false;
+		static List<string> _csv = new List<string>();
+
+		#if UNITY_EDITOR
+		[MenuItem("Relay/Profile/Run All", false, 0)]
+		#endif
+		public static void RunAll(){
+			_writeCsv = true;
+			string div = "=======================================================";
+			Print("## POPULATE ##");
+			DrawProgress(0,5,"Populate");
+			Pop();
+			Print(div);
+			Print("## CREATE AND POPULATE ##");
+			DrawProgress(1,5,"Create And Populate");
+			CreateAndPop();
+			Print(div);
+			Print("## REMOVE ##");
+			DrawProgress(2,5,"Remove");
+			Remove();
+			Print(div);
+			Print("## REMOVE ALL ##");
+			DrawProgress(3,5,"Remove All");
+			RemoveAll();
+			Print(div);
+			Print("## DISPATCH ##");
+			DrawProgress(4,5,"Dispatch");
+			Dispatch();
+			#if UNITY_EDITOR
+			EditorUtility.ClearProgressBar();
+			#endif
+			_writeCsv = false;
+			var sb = new System.Text.StringBuilder();
+			foreach (string s in _csv){
+				sb.Append(s);
+			}
+			Print(sb.ToString());
+			_csv.Clear();
+		}
+
 		#region Tests
 		#if UNITY_EDITOR
-		[MenuItem("Relay/Profile/Populate")]
+		[MenuItem("Relay/Profile/Populate", false, 20)]
 		#endif
 		public static void Pop(){
 			sw.Stop();
@@ -79,7 +124,7 @@ namespace Sigtrap.Relays.Tests {
 			PrintLogs();
 		}
 		#if UNITY_EDITOR
-		[MenuItem("Relay/Profile/Create and Populate (re-alloc each loop)")]
+		[MenuItem("Relay/Profile/Create and Populate (re-alloc each loop)", false, 21)]
 		#endif
 		public static void CreateAndPop(){
 			sw.Stop();
@@ -134,9 +179,9 @@ namespace Sigtrap.Relays.Tests {
 			PrintLogs();
 		}
 		#if UNITY_EDITOR
-		[MenuItem("Relay/Profile/Remove")]
+		[MenuItem("Relay/Profile/Remove", false, 22)]
 		#endif
-		public static void Rem(){
+		public static void Remove(){
 			sw.Stop();
 			sw.Reset();
 
@@ -190,9 +235,9 @@ namespace Sigtrap.Relays.Tests {
 			PrintLogs();
 		}
 		#if UNITY_EDITOR
-		[MenuItem("Relay/Profile/Clear")]
+		[MenuItem("Relay/Profile/Remove All", false, 23)]
 		#endif
-		public static void Clr(){
+		public static void RemoveAll(){
 			sw.Stop();
 			sw.Reset();
 
@@ -239,9 +284,9 @@ namespace Sigtrap.Relays.Tests {
 			PrintLogs();
 		}
 		#if UNITY_EDITOR
-		[MenuItem("Relay/Profile/Execute")]
+		[MenuItem("Relay/Profile/Dispatch", false, 24)]
 		#endif
-		public static void Exc(){
+		public static void Dispatch(){
 			sw.Stop();
 			sw.Reset();
 
@@ -387,24 +432,30 @@ namespace Sigtrap.Relays.Tests {
 		}
 
 		static void LogStopwatch(string prefix, string units, double mulFac){
+			string total = sw.Elapsed.TotalMilliseconds.ToString();
 			LOGS.Add(
 				string.Format(
-					"{0} [LOOPS:{1} - DELEGATES:{2}]\n\tTOTAL: {3}ms\n\tPER CALL: {4}{5}",
-					prefix, LOOPS.ToString(), DELEGATES.ToString(), 
-					sw.Elapsed.TotalMilliseconds.ToString(),
+					"{0} [LOOPS:{1} - DELEGATES:{2}]\n{3}ms\n\tPER CALL: {4}{5}",
+					prefix, LOOPS.ToString(), DELEGATES.ToString(), total,
 					((sw.Elapsed.TotalMilliseconds * mulFac) / (LOOPS*DELEGATES)).ToString(), units
 				)
 			);
+			if (_writeCsv){
+				_csv.Add(string.Format("{0},{1}\n", prefix, total));
+			}
 		}
 		static void PrintLogs(){
 			foreach (string s in LOGS){
-				#if UNITY_EDITOR
-				Debug.Log(s);
-				#else
-				System.Console.WriteLine(s);
-				#endif
+				Print(s);
 			}
 			LOGS.Clear();
+		}
+		static void Print(string s){
+			#if UNITY_EDITOR
+			Debug.Log(s);
+			#else
+			System.Console.WriteLine(s);
+			#endif
 		}
 		#endregion
 
