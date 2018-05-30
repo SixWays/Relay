@@ -199,6 +199,8 @@ namespace Sigtrap.Relays {
 		/// <param name="removeOneTimeListeners">If set to <c>true</c>, remove one-time listeners.</param>
 		public void RemoveAll(bool removePersistentListeners=true, bool removeOneTimeListeners=true){
 			if (removePersistentListeners) {
+				// No count check since array always present and RemoveAll
+				// expected to be used when user knows there are listeners
 				#if SIGTRAP_RELAY_DBG
 				for (int i=0; i<_listeners.Length; ++i){
 					_RelayDebugger.DebugRemListener(this, _listeners[i]);
@@ -207,7 +209,8 @@ namespace Sigtrap.Relays {
 				Array.Clear(_listeners, 0, (int)_cap);
 				_count = 0;
 			}
-			if (removeOneTimeListeners){
+			if (removeOneTimeListeners && _onceCount > 0){
+				// Count check because array lazily instantiated
 				Array.Clear(_listenersOnce, 0, (int)_onceCap);
 				_onceCount = 0;
 			}

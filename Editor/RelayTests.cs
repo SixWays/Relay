@@ -317,6 +317,8 @@ namespace Sigtrap.Relays.Tests {
 		}
 		void TestRemoveAll(int args, bool clearPersistent, bool clearOnce){
 			var r = CreateRelay(args);
+			// Check for nullrefs before listeners added
+			RemoveAllListeners(r,args,clearPersistent,clearOnce);
 			AddListener1(r,args);
 			AddListener2(r,args);
 			AddListenerOnce1(r,args);
