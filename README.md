@@ -1,10 +1,6 @@
 # Relay
 Fast, light, GC-friendly C# signals/events for Unity.
 
-### !! BREAKING CHANGE !!
-Relay.RemoveAll now defaults to removing persistent *and* one-time listeners.
-`RemoveAll(bool removePersistentListeners=true, bool removeOneTimeListeners=true)`
-
 ---
 
 C# `event` multicasting is a nice language-level feature, but in Unity's version of Mono, events allocate a lot on addition/removal and aren't always easy to manipulate. Relay aims to address these issues.
