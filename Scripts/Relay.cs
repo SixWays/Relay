@@ -1,7 +1,7 @@
 ﻿/**
  * ######################################################################################
  * #                   Relay: Fast, light, GC-friendly signals/events.                  #
- * #                        (c) 2017 Luke Thompson / Sigtrap Games                      #
+ * #                     (c) 2017-2019 Luke Thompson / Sigtrap Games                    #
  * #    Provided under MIT License. No warranty, it's all your own fault, blah blah.    #
  * #                   @six_ways    @sigtrapgames    github.com/sixways                 #
  * ######################################################################################
@@ -281,16 +281,14 @@ namespace Sigtrap.Relays {
 			}
 			// One-time listeners - reversed for safe addition and auto-removal
 			for (uint i=_onceCount; i>0; --i){
-				if (_listenersOnce[i-1] != null){
-					var l = _listenersOnce[i-1];
+				var l = _listenersOnce[i-1];
+				// Remove first to prevent potential infinite loops
+			#if SIGTRAP_RELAY_DBG
+				_RelayDebugger.DebugRemListener(this, _listenersOnce[i-1]);
+			#endif
+				_onceCount = RemoveAt(_listenersOnce, _onceCount, i-1);
+				if (l != null){
 					l();
-					// Check for self-removal before auto-removing
-					if (_listenersOnce[i-1] == l){
-						#if SIGTRAP_RELAY_DBG
-						_RelayDebugger.DebugRemListener(this, _listenersOnce[i-1]);
-						#endif
-						_onceCount = RemoveAt(_listenersOnce, _onceCount, i-1);
-					}
 				}
 			}
 		}
@@ -321,15 +319,14 @@ namespace Sigtrap.Relays {
 				}
 			}
 			for (uint i=_onceCount; i>0; --i){
-				if (_listenersOnce[i-1] != null){
-					var l = _listenersOnce[i-1];
+				var l = _listenersOnce[i-1];
+				// Remove first to prevent potential infinite loops
+			#if SIGTRAP_RELAY_DBG
+				_RelayDebugger.DebugRemListener(this, _listenersOnce[i-1]);
+			#endif
+				_onceCount = RemoveAt(_listenersOnce, _onceCount, i-1);
+				if (l != null){
 					l(t);
-					if (_listenersOnce[i-1] == l){
-						#if SIGTRAP_RELAY_DBG
-						_RelayDebugger.DebugRemListener(this, _listenersOnce[i-1]);
-						#endif
-						_onceCount = RemoveAt(_listenersOnce, _onceCount, i-1);
-					}
 				}
 			}
 		}
@@ -360,15 +357,14 @@ namespace Sigtrap.Relays {
 				}
 			}
 			for (uint i=_onceCount; i>0; --i){
-				if (_listenersOnce[i-1] != null){
-					var l = _listenersOnce[i-1];
+				var l = _listenersOnce[i-1];
+				// Remove first to prevent potential infinite loops
+			#if SIGTRAP_RELAY_DBG
+				_RelayDebugger.DebugRemListener(this, _listenersOnce[i-1]);
+			#endif
+				_onceCount = RemoveAt(_listenersOnce, _onceCount, i-1);
+				if (l != null){
 					l(t, u);
-					if (_listenersOnce[i-1] == l){
-						#if SIGTRAP_RELAY_DBG
-						_RelayDebugger.DebugRemListener(this, _listenersOnce[i-1]);
-						#endif
-						_onceCount = RemoveAt(_listenersOnce, _onceCount, i-1);
-					}
 				}
 			}
 		}
@@ -399,15 +395,14 @@ namespace Sigtrap.Relays {
 				}
 			}
 			for (uint i=_onceCount; i>0; --i){
-				if (_listenersOnce[i-1] != null){
-					var l = _listenersOnce[i-1];
+				var l = _listenersOnce[i-1];
+				// Remove first to prevent potential infinite loops
+			#if SIGTRAP_RELAY_DBG
+				_RelayDebugger.DebugRemListener(this, _listenersOnce[i-1]);
+			#endif
+				_onceCount = RemoveAt(_listenersOnce, _onceCount, i-1);
+				if (l != null){
 					l(t, u, v);
-					if (_listenersOnce[i-1] == l){
-						#if SIGTRAP_RELAY_DBG
-						_RelayDebugger.DebugRemListener(this, _listenersOnce[i-1]);
-						#endif
-						_onceCount = RemoveAt(_listenersOnce, _onceCount, i-1);
-					}
 				}
 			}
 		}
@@ -438,15 +433,14 @@ namespace Sigtrap.Relays {
 				}
 			}
 			for (uint i=_onceCount; i>0; --i){
-				if (_listenersOnce[i-1] != null){
-					var l = _listenersOnce[i-1];
+				var l = _listenersOnce[i-1];
+				// Remove first to prevent potential infinite loops
+			#if SIGTRAP_RELAY_DBG
+				_RelayDebugger.DebugRemListener(this, _listenersOnce[i-1]);
+			#endif
+				_onceCount = RemoveAt(_listenersOnce, _onceCount, i-1);
+				if (l != null){
 					l(t, u, v, w);
-					if (_listenersOnce[i-1] == l){
-						#if SIGTRAP_RELAY_DBG
-						_RelayDebugger.DebugRemListener(this, _listenersOnce[i-1]);
-						#endif
-						_onceCount = RemoveAt(_listenersOnce, _onceCount, i-1);
-					}
 				}
 			}
 		}
